@@ -1,0 +1,175 @@
+---
+title: "Obesity"
+author: "Runxin Wang"
+date: "11/17/2018"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+```
+```{r}
+weight <- Weight_Group %>%
+  filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+  select(GALLUP, X__1, X__4, X__5, X__6, X__7) %>%
+  rename(State = GALLUP, "Underweight" =X__4, "Normal Weight" = X__5, "Overweight" = X__6, "Obese" = X__7, Year =X__1)
+weight
+```
+
+```{r}
+ ds1 <- GallupAnalytics_Export_20181116_230109 %>%
+  filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+  select(GALLUP, X__1, X__4) %>%
+  rename(State = GALLUP, "Amount_of_Money_to_Spend_feeling_good" =X__4, "Year" =X__1)
+ds1
+```
+
+```{r}
+ ds2 <- Ate_Healthy_Yesterday %>%
+  filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+  select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Ate_Healthy_Yesterday" =X__4, "Year" =X__1)
+ds2
+```
+
+```{r}
+ds3 <- Fresh_Fruits_and_Vegetables %>%
+  filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013") %>%
+  select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Fresh_Fruits_and_Vegetables_Easy" =X__4, "Year" =X__1)
+ds3
+```
+
+```{r}
+ds4 <- Getting_a_Safe_Place_to_Exercise %>%
+  filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013") %>%
+  select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Getting_a_Safe_Place_to_Exercise" =X__4, "Year" =X__1)
+ds4
+```
+
+```{r}
+ds5 <- Cutting_back_on_Spending %>%
+  filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+  select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Cutting_back_on_Spending_Yes" =X__4, "Year" =X__1)
+ds5
+```
+
+```{r}
+ds6 <- Disease_Burden %>%
+  filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+  select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Elevated_Disease_Burden" =X__4, "Year" =X__1)
+ds6
+```
+
+```{r}
+ds7 <- Economic_Conditions %>%
+  filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+  select(GALLUP, X__1, X__4, X__5, X__6, X__7) %>%
+  rename(State = GALLUP, "Economic_Conditions_Excellent" =X__4, "Economic_Conditions_Good" =X__5, "Economic_Conditions_Onlyfair" =X__6, "Economic_Conditions_Poor" =X__7, "Year" =X__1)
+ds7
+```
+```{r}
+ds8 <- Felt_Active_and_Productive %>%
+  filter(Time == "2013" |Time == "2014" |Time == "2015" | Time == "2016") %>%
+  select(Geography, "1. Strongly disagree", "2", "3", "4", "5. Strongly agree", Time) %>%
+  rename(State = Geography, "Felt_Active_Strongly_Disagree" ="1. Strongly disagree", "Felt_Active_Strongly_Agree" ="5. Strongly agree", "Year" =Time)
+ds8
+```
+```{r}
+ds9 <- GallupAnalytics_Export %>%
+    filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+   select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Have_Depression_Yes" = X__4, "Year" =X__1)
+ds9
+```
+
+```{r}
+ds10 <- Have_Diabetes %>%
+    filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+   select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Have_Diabetes_Yes" =X__4, "Year" =X__1)
+ds10
+```
+
+```{r}
+ds11 <- Have_High_Blood_Pressure %>%
+    filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+   select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Have_High_Blood_Pressure" =X__4, "Year" =X__1)
+ds11
+```
+
+```{r}
+ds12 <- Have_High_Cholesterol %>%
+    filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+   select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Have_High_Cholesterol" =X__4, "Year" =X__1)
+ds12
+```
+
+```{r}
+ds13 <- Life_Evaluation_Index %>%
+  filter(Time == "2010" | Time == "2011" | Time == "2012" | Time == "2013" |Time == "2014" |Time == "2015" | Time == "2016") %>%
+  select(Geography, Thriving, Struggling,Suffering, Time) %>%
+  rename(State = Geography, "Life_Evaluation_Index_Thriving" = Thriving, "Life_Evaluation_Index_Struggling" = Struggling, "Life_Evaluation_Index_Sufferingg" = Suffering, "Year"=Time)
+ds13
+```
+
+```{r}
+ds14 <- Not_Enough_Money_Food %>%
+    filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+   select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Not_Enough_Money_Food" =X__4, "Year" =X__1)
+ds14
+```
+```{r}
+ds15 <- Standard_of_Living %>%
+    filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+   select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Standard_of_Living_Satisfied" =X__4, "Year" =X__1)
+ds15
+```
+
+```{r}
+ds16 <- Visited_Dentist_Last_12_Months %>%
+    filter(X__1 == "2010" | X__1 == "2011" | X__1 == "2012" | X__1 == "2013" | X__1 == "2014" | X__1 == "2015" | X__1 == "2016") %>%
+   select(GALLUP, X__4, X__1) %>%
+  rename(State = GALLUP, "Visited_Dentist_Last_12_Months" =X__4, "Year" =X__1)
+ds16
+```
+
+```{r}
+d1 <- full_join(ds1, ds2, by = c("State","Year"))
+d3 <- full_join(ds3, ds4, by = c("State","Year"))
+d5 <- full_join(ds5, ds6, by = c("State","Year"))
+d7 <- full_join(ds7, ds8, by = c("State","Year"))
+d9 <- full_join(ds9, ds10, by = c("State","Year"))
+d11 <- full_join(ds11, ds12, by = c("State","Year"))
+d13 <- full_join(ds13, ds14, by = c("State","Year"))
+d15 <- full_join(ds15, ds16, by = c("State","Year"))
+
+
+dd1 <- full_join(d1, d3, by = c("State","Year"))
+dd3 <- full_join(d5, d7, by = c("State","Year"))
+dd5 <- full_join(d9, d11, by = c("State","Year"))
+dd7 <- full_join(d13, d15, by = c("State","Year"))
+
+ddd1 <- full_join(dd1, dd3, by = c("State","Year"))
+ddd3 <- full_join(dd5, dd7, by = c("State","Year"))
+
+obesity_p <- full_join(ddd1, ddd3, by = c("State","Year"))
+obesity_p
+```
+
+```{r}
+obesity <- weight %>% 
+   full_join(obesity_p, by = c("State","Year"))
+obesity
+```
+
+```{r}
+write.csv(obesity, "/Users/runxinwang/obesity_full.csv")
+```

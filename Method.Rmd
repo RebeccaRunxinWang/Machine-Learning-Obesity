@@ -1,0 +1,228 @@
+---
+title: "Project Task 3"
+author: "Chujun He, Rebecca Wang, Stephanie Foukaris, Lynn Albright"
+date: "11/17/2018"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(mosaic)
+```
+
+
+# Read the data 
+```{r, results="hide"}
+Obesity <- read.csv(file="obesity.csv", header=TRUE, sep=",")
+#Obesity 
+
+```
+
+Notice that Puerto Rico has no available preditors values. 
+For the remaining states, NA happen only on predictors: Amount_of_Money_to_Spend_feeling_good and Cutting_back_on_Spending_Yes. 
+
+# Visualization 1: obesity percentage
+
+```{r,message=FALSE, warning=FALSE}
+ggplot(Obesity, aes(x=adult_obesity_percentage))+
+  geom_histogram()
+```
+The distribution of obesity percentage of adults in each state is bimodal and nearly symmetrical. 
+
+# Summary 1: obesity percentage 
+```{r}
+favstats(~adult_obesity_percentage, data = Obesity)
+```
+The median of adult obesity percentage is 29.15, the mean is 28.6 and the sd is 3.4.
+
+
+# Visualization 2: Ate Healthy Yesterday
+```{r,message=FALSE, warning=FALSE}
+ggplot(Obesity, aes( x=Ate_Healthy_Yesterday_Yes))+
+  geom_histogram()
+```
+The distribution of percentage of people who think they ate healthy yesterday in each state is unimodal and slightly skewed to the right. 
+
+# Summary 2: Ate Healthy Yesterday
+```{r}
+favstats(~Ate_Healthy_Yesterday_Yes, data = Obesity)
+```
+The median of adult obesity percentage is 0.64, the mean is 0.643 and the sd is 0.03. 
+
+# Visualization 3: Not Enough Money Food    
+```{r,message=FALSE, warning=FALSE}
+ggplot(Obesity, aes( x=Not_Enough_Money_Food))+
+  geom_histogram(binwidth=0.01)
+```
+The distribution of percentage of people who don't have enough money for food in each state is bimodal and nearly symmetrical. 
+
+# Summary 3: Poor Economic Conditions
+
+```{r}
+favstats(~Economic_Conditions_Poor, data = Obesity)
+```
+
+The median of poor economic condition percentage is 0.37, the mean is 0.361 and the sd is 0.0512.
+
+# Visualization 4: Not Enough Money Food and Obesity
+
+```{r,message=FALSE, warning=FALSE}
+money <- ggplot(data=Obesity, aes(y=adult_obesity_percentage, x= Not_Enough_Money_Food)) +
+  geom_point()
+
+money
+```
+We can see a positive trend between the percentage of people who do not have enough money to buy food with adult obesity.  This suggests that Sates that have poor people who cannot afford food, tend to be have more obese people since there is a positive relationship.
+
+
+# Summary 4: Fresh Fruits and Vegetables
+
+```{r}
+favstats(~Fresh_Fruits_and_Vegetables_Easy, data = Obesity)
+```
+
+The median of access to fresh fruits and vegetables percentage is 0.91, the mean is 0.892 and the sd is 0.0496.
+
+# Visualization 5: Diabetes and obesity
+
+```{r,message=FALSE, warning=FALSE}
+diabetes <- ggplot(data=Obesity, aes(y=adult_obesity_percentage, x= Have_Diabetes_Yes)) +
+  geom_point()
+
+diabetes
+```
+
+There is a positive trend between obesity and diabetes.  States with higher percentages of obese adults have higher numbers of obese adults.
+
+#Summary 5: Safe place to exercise 
+
+```{r}
+favstats(~Getting_a_Safe_Place_to_Exercise, data = Obesity)
+```
+
+The median of poor economic condition percentage is 0.91, the mean is 0.912 and the sd is 0.02234.  Getting a safe place to exercise has a small standrard deviation which suggests that the percentage doesnt vary too much from to Sate to State.
+
+# Visualization 6: Poverty and obesity
+
+```{r,message=FALSE, warning=FALSE}
+poor <- ggplot(data=Obesity, aes(y=adult_obesity_percentage, x= Economic_Conditions_Poor)) +
+  geom_point()
+
+poor
+```
+
+There is a positive relationship between poor people and obesity suggesting that states with poorer people have a more obese population.
+
+# Multiple Linear Regression using all the predictors
+```{r, results="hide"}
+# get rid of NA value 
+obesity_no_na = na.omit(Obesity)
+# Multiple Linear Regression 
+model_ML = lm(adult_obesity_percentage~.-Year-LocationAbbr-State, data = obesity_no_na)
+summary(model_ML)
+```
+
+*No significant predictors as shown above.* 
+Concerns: too many predictors
+
+# Best Subset Selection 
+```{r, results="hide"}
+library(leaps)
+regfit_full = regsubsets(adult_obesity_percentage~.-Year-LocationAbbr-State, data = obesity_no_na)
+summary(regfit_full)
+```
+
+Try fit up to a 19-variable model
+```{r, results="hide"}
+regfit_full_19 = regsubsets(adult_obesity_percentage~.-Year-LocationAbbr-State, data = obesity_no_na, nvmax = 19)
+reg_summary =summary(regfit_full_19)
+```
+
+
+```{r, results="hide"}
+reg_summary$rsq
+```
+
+# Plot to see
+```{r, results="hide"}
+plot(reg_summary$rss, xlab = "Number of Variables", ylab = "RSS", type = "l")
+plot(reg_summary$adjr2, xlab = "Number of Variables", ylab = "Adjusted RSq", type = "l")
+
+# We will now plot a red dot to indicate the model with the largest adjusted R^2 statistic 
+# The which.max() function can be used to identify the location of the maximum point of a vector
+adj_r2_max = which.max(reg_summary$adjr2) #9
+adj_r2_max
+
+# The points() command works like the plot() command, except that it puts points 
+# on a plot that has already been created instead of creating a new plot 
+points(adj_r2_max, reg_summary$adjr2[adj_r2_max], col ="red", cex = 2, pch = 20)
+```
+
+By the adjusted R-Sqaure, we select 9-variable model. 
+```{r, results="hide"}
+# See which 9 predictors made the cut
+coef(regfit_full_19,9)
+```
+
+# Make a new data set using only these 9 variables
+```{r, results="hide"}
+#obesity_no_na
+obesity_9 = obesity_no_na %>%
+  select(State, adult_obesity_percentage,Amount_of_Money_to_Spend_feeling_good, Ate_Healthy_Yesterday_Yes, Cutting_back_on_Spending_Yes, Elevated_Disease_Burden, Economic_Conditions_Excellent, Economic_Conditions_Good, X3, Have_High_Blood_Pressure, Life_Evaluation_Index_Thriving)
+#obesity_9 
+```
+
+# Multiple Linear Regression with 9 predictors 
+```{r, results="hide"}
+ML_9 = lm(adult_obesity_percentage~.-State, data = obesity_9)
+summary(ML_9)
+```
+
+Now, we have some predictors with very low p-values. And the R-sqaured is $89.64\%$, which means that $89.64\%$ of the variance in the obesity percentage is explained by the model. 
+
+# Try Ridge Regression
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(glmnet)
+```
+
+*First, set up our data to perform ridge regression*
+```{r, results="hide"}
+obesity_new = obesity_no_na
+obesity_new$Year = NULL
+obesity_new$LocationAbbr = NULL
+obesity_new$State = NULL
+#obesity_new
+x = model.matrix(adult_obesity_percentage~., obesity_new)[,-1]
+y = obesity_new %>%
+  select(adult_obesity_percentage) %>%
+  unlist() %>%
+  as.numeric()
+```
+
+*Fit Ridge Regression*
+```{r, results="hide"}
+grid = 10^seq(10,-2,length=100)
+ridge_mod = glmnet(x,y, alpha=0, lambda=grid)
+```
+
+```{r, results="hide"}
+dim(coef(ridge_mod))
+plot(ridge_mod)
+```
+
+```{r, results="hide"}
+ridge_mod$lambda[50] #Display 50th lambda value
+coef(ridge_mod)[,50] #Display coefficients associated with 50th lambda value
+sqrt(sum(coef(ridge_mod)[-1,50]^2)) #Calculate l_2 norm 
+```
+
+# Next step
+We can try obtain more data and use CV to train linear regression and the redige regression. And calculate the test error. 
+
+# Conclusion
+From this initial scan of the data, we have learned several things about the machine learning ideas we have applied.  We liked that the best subset selection worked and the predictors it chose, make a lot of sense.  The R^2 using only the predictors from best subset selection is very promising.  In the next step of our work with the data, we would like to see if we can obtain more data, so we can split it into test and train data in order to perform cross validation.  One thing we are concerned about is whether our dataset makes sense, after wrangling it because we are using different states as observations and the predictors and the response variables are from different samples since they are from different datasets.  This was the only way to use the original data we found, but now we cannot explore gender for example, which was one of our initial thoughts.  Maybe finding more datasets would be a solution and trying to figure out how we can combine more information.
